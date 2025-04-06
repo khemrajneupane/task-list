@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
 
@@ -56,45 +57,20 @@ $tasks = [
   ),
 ];
 
-Route::get('/', function () use ($tasks) {
+Route::get('/', function () {
+    return redirect()->route('task.index');
+});
+
+Route::get('/task', function () use ($tasks) {
     return view('index', [
         'tasks'=>$tasks
     ]);
 }) -> name('task.index');
 
-Route::get('/hello', function () {
-    return "Hello page again finally";
-});
-
-Route::get('/{id}', function($id) {
-    return 'One single tasks';
+Route::get('/task/{id}', function($id) use ($tasks){
+    $task = collect($tasks)->firstWhere('id', $id);
+    if(!$task){
+        abort(Response::HTTP_NOT_FOUND);
+    }
+    return view('show', ['task'=> $task]);
 })->name('task.show');
-
-
-
-
-
-
-
-Route::get('/hallow', function () {
-    return redirect('/hello');// redirecting to /hello from /hallow
-})->name('helloroute');
-
-Route::get('/hi', function () {
-    return redirect()->route('helloroute');// first it checks url name helloroute then it goes to /hallow route, however this is redirected to /hello route and the contents from there is visible in the page.
-});
-
-
-Route::get('/greet/{name}', function ($name) {
-    return 'Hello '. $name . "!";
-});
-//if no reoutes are defined so instead of 404 we can use some fallback.
-Route::fallback(function () {
-    return 'The page you are looking for does not exist!';
-});
-/*
-Route::get('/', function () {
-   return view('index');
-});*/
-
-
